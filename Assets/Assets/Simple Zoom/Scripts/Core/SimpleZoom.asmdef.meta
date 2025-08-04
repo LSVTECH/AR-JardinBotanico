@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8f248ae274a64a34788b91a8740e201a
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 143625
+  packageName: Simple Zoom
+  packageVersion: 1.1.0
+  assetPath: Assets/Assets/Simple Zoom/Scripts/Core/SimpleZoom.asmdef
+  uploadId: 484534

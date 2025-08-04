@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: cdaeeccd95d4f9d468c59937da881a54
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 143625
+  packageName: Simple Zoom
+  packageVersion: 1.1.0
+  assetPath: Assets/Assets/Simple Zoom/Scripts/Plugins/SimpleInspectorAttributes/Editor/ReadOnlyDrawer.cs
+  uploadId: 484534

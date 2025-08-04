@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 0422ce4ac2a323e40918f6c7b8693373
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 143625
+  packageName: Simple Zoom
+  packageVersion: 1.1.0
+  assetPath: Assets/Assets/Simple Zoom/Scripts/Plugins/SimpleInspectorAttributes/Runtime/RenameAttribute.cs
+  uploadId: 484534

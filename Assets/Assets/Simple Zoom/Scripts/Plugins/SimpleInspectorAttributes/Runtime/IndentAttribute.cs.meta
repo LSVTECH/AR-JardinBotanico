@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: fab26a570c2f59b418e0fd712f458b71
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 143625
+  packageName: Simple Zoom
+  packageVersion: 1.1.0
+  assetPath: Assets/Assets/Simple Zoom/Scripts/Plugins/SimpleInspectorAttributes/Runtime/IndentAttribute.cs
+  uploadId: 484534

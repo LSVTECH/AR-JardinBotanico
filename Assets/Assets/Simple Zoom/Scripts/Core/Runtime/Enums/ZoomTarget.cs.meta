@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: ee76510ff9e46b04bb3d07aa1d0154ea
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 143625
+  packageName: Simple Zoom
+  packageVersion: 1.1.0
+  assetPath: Assets/Assets/Simple Zoom/Scripts/Core/Runtime/Enums/ZoomTarget.cs
+  uploadId: 484534

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4a74913cddc5db24e9d7fabf437f0d8f
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 143625
+  packageName: Simple Zoom
+  packageVersion: 1.1.0
+  assetPath: Assets/Assets/Simple Zoom/Scripts/Plugins/SimpleInspectorAttributes/Editor/SimpleInspectorAttributesEditor.asmdef
+  uploadId: 484534

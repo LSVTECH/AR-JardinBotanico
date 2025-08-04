@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 999f102d2c25e9e49b28b99ad102d65c
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 143625
+  packageName: Simple Zoom
+  packageVersion: 1.1.0
+  assetPath: Assets/Assets/Simple Zoom/Scripts/Plugins/CopyrightEditor/Editor/CopyrightEditor.cs
+  uploadId: 484534
