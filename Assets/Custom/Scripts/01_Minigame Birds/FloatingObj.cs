@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class FloatingObj : MonoBehaviour
 {
-    private float floatSpeed;
-    private float floatHeight;
+    public float floatSpeed;
+    public float floatHeight;
     private bool enableRotation;
     private float rotationSpeed;
     private Vector3 rotationAxis;
