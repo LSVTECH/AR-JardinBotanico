@@ -1,9 +1,14 @@
 fileFormatVersion: 2
-guid: a1afd5a5cd1707b4a8a02dc0628b730d
+guid: b1df3b3ea9f16e84b930bcec6d377d25
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Banana_Mat
+    second: {fileID: 2100000, guid: a50620b20ab93c1468b376e9ad256efa, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -30,7 +35,7 @@ ModelImporter:
     extraExposedTransformPaths: []
     extraUserProperties: []
     clipAnimations: []
-    isReadable: 0
+    isReadable: 1
   meshes:
     lODScreenPercentages: []
     globalScale: 1

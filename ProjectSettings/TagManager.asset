@@ -7,6 +7,8 @@ TagManager:
   - ObjetoInteractivo
   - Interactivo
   - Selectable
+  - Undefined
+  - Banana
   layers:
   - Default
   - TransparentFX
@@ -14,8 +16,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - Player
+  - Collectables
   - 
   - 
   - 
