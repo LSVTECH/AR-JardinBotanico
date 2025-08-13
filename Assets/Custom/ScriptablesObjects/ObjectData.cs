@@ -6,4 +6,7 @@ public class ObjectData : ScriptableObject
     public GameObject prefab;
     public int pointValue;
     public string objectName;
+    internal Sprite icon;
+    internal string displayName;
+    internal string id;
 }

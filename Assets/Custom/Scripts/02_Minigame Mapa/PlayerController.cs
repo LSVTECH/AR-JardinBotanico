@@ -12,10 +12,6 @@ public class PlayerController : MonoBehaviour
     private Vector3 playerVelocity;
     private bool isGrounded;
     
-    // Variables para recolección de bananas
-    private int bananasCollected = 0;
-    private int totalBananas = 3;
-
     void Start()
     {
         characterController = GetComponent<CharacterController>();
@@ -129,53 +125,38 @@ public class PlayerController : MonoBehaviour
         joystickID = -1;
         mapBoundary = null;
         playerVelocity = Vector3.zero;
-        bananasCollected = 0;
 
         if (characterController != null)
         {
             characterController.enabled = false;
         }
     }
-    
+
     // Detectar colisión con bananas
     void OnTriggerEnter(Collider other)
     {
-        if (!isActive || GameManager.Instance == null || 
+        if (!isActive || GameManager.Instance == null ||
             GameManager.Instance.currentGameMode != GameManager.GameMode.PlatformGame)
         {
             return;
         }
-        
-        // Verificar si es una banana
+
         if (other.CompareTag("Banana") || other.gameObject.name.ToLower().Contains("banana"))
         {
             Debug.Log("¡Banana recolectada!");
             CollectBanana(other.gameObject);
         }
     }
-    
+
     private void CollectBanana(GameObject banana)
     {
-        bananasCollected++;
-        Debug.Log($"Bananas recolectadas: {bananasCollected}/{totalBananas}");
-        
-        // Destruir la banana
-        Destroy(banana);
-        
         // Notificar al GameManager
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.OnBananaCollected(bananasCollected, totalBananas);
+            GameManager.Instance.CollectBanana();
         }
-        
-        // Verificar si se completó la recolección
-        if (bananasCollected >= totalBananas)
-        {
-            Debug.Log("¡Todas las bananas han sido recolectadas!");
-            if (GameManager.Instance != null)
-            {
-                GameManager.Instance.OnAllBananasCollected();
-            }
-        }
+
+        // Destruir la banana
+        Destroy(banana);
     }
 }

@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 
 public class ClickableSphere : MonoBehaviour
@@ -10,3 +11,4 @@ public class ClickableSphere : MonoBehaviour
         Destroy(gameObject);
     }
 }
+

@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: ObjectData
   m_EditorClassIdentifier: 
   prefab: {fileID: 6290409198297516206, guid: e1acb27a3cff82741bc97b7aa431fae2, type: 3}
-  pointValue: 5
+  pointValue: 1
   objectName: Animal

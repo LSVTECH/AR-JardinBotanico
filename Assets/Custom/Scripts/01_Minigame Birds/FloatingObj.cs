@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class FloatingObj : MonoBehaviour
 {
-    public float floatSpeed;
-    public float floatHeight;
-    private bool enableRotation;
-    private float rotationSpeed;
-    private Vector3 rotationAxis;
+    public float floatSpeed = 0.5f;
+    public float floatHeight = 0.1f;
+    private bool enableRotation = true;
+    private float rotationSpeed = 20f;
+    private Vector3 rotationAxis = Vector3.up;
 
     private Vector3 startPosition;
     private Quaternion startRotation;
@@ -14,31 +14,9 @@ public class FloatingObj : MonoBehaviour
 
     void Start()
     {
-        // Obtener valores del GameManager como respaldo
-        GameManager gm = FindObjectOfType<GameManager>();
-        floatSpeed = gm.defaultFloatSpeed;
-        floatHeight = gm.defaultFloatHeight;
-        enableRotation = true;
-        rotationSpeed = 20f;
-        rotationAxis = Vector3.up;
-
-        // Intentar obtener configuración personalizada
-        ObjFloatSettings settings = GetComponent<ObjFloatSettings>();
-        if (settings != null)
-        {
-            if (settings.overrideFloat) floatSpeed = settings.floatSpeed;
-            if (settings.overrideHeight) floatHeight = settings.floatHeight;
-            if (settings.overrideRotation) rotationSpeed = settings.rotationSpeed;
-            if (settings.overrideAxis) rotationAxis = settings.rotationAxis;
-            enableRotation = settings.enableRotation;
-        }
-
         startPosition = transform.position;
         startRotation = transform.rotation;
         randomOffset = Random.Range(0f, 2f * Mathf.PI);
-
-       // Debug.Log($"Config: Speed={floatSpeed} Height={floatHeight} " +
-            // $"Rotation={rotationSpeed} Axis={rotationAxis}");
     }
 
     void Update()

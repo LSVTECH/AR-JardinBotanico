@@ -25,7 +25,7 @@ MonoBehaviour:
       m_GuidHigh: 2455960308764421000
     m_Size: {x: 0, y: 0}
     m_SpecifySize: 0
-    m_Name: QR_Arbol
+    m_Name: QR_Caracoli
     m_Texture: {fileID: 0}
   - m_SerializedGuid:
       m_GuidLow: 5493938383194757415
@@ -36,4 +36,24 @@ MonoBehaviour:
     m_Size: {x: 0, y: 0}
     m_SpecifySize: 0
     m_Name: QR_Arbusto
+    m_Texture: {fileID: 0}
+  - m_SerializedGuid:
+      m_GuidLow: 5391064235570626778
+      m_GuidHigh: 14070918004120584111
+    m_SerializedTextureGuid:
+      m_GuidLow: 3378943541460988467
+      m_GuidHigh: 8894853368166047867
+    m_Size: {x: 0, y: 0}
+    m_SpecifySize: 0
+    m_Name: QR_Guayacan
+    m_Texture: {fileID: 0}
+  - m_SerializedGuid:
+      m_GuidLow: 4613137937247404706
+      m_GuidHigh: 14375092980498952613
+    m_SerializedTextureGuid:
+      m_GuidLow: 11102778538651875963
+      m_GuidHigh: 4857649963827174217
+    m_Size: {x: 0, y: 0}
+    m_SpecifySize: 0
+    m_Name: QR_Ceiba
     m_Texture: {fileID: 0}
