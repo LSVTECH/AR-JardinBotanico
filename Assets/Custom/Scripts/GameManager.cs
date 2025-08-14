@@ -25,7 +25,6 @@ public class GameManager : MonoBehaviour
     public GameObject albumItemPrefab;       // Prefab UI con Image+Text (icono y nombre)
     private HashSet<string> collectedBirdIds = new HashSet<string>();
 
-
     [Header("Platform Game Settings")]
     public GameObject mapPrefab;
     public GameObject playerPrefab;
@@ -37,16 +36,6 @@ public class GameManager : MonoBehaviour
     public Vector2 mapBounds = new Vector2(4f, 4f);
     public Vector3 playerSpawnOffset = new Vector3(0, 0.5f, 0);
     public int totalBananas = 3;
-
-
-
-    [Header("Banana Spawn Positions")]
-    public Vector3[] bananaSpawnPositions = new Vector3[]
-    {
-        new Vector3(-1.5f, 0.5f, -1.5f),
-        new Vector3(1.5f, 0.5f, -1.5f),
-        new Vector3(0f, 0.5f, 1.5f)
-    };
 
     [Header("Audio")]
     public AudioSource audioSource;
@@ -488,72 +477,6 @@ public class GameManager : MonoBehaviour
         {
             joystick.SetVisibility(true);
         }
-
-        SpawnBananas();
-    }
-
-    private void SpawnBananas()
-    {
-        if (bananaPrefab == null)
-        {
-            Debug.LogError("Banana prefab no asignado");
-            return;
-        }
-
-        if (platformMap == null)
-        {
-            Debug.LogError("Platform map no encontrado");
-            return;
-        }
-
-        foreach (GameObject banana in spawnedBananas)
-        {
-            if (banana != null)
-            {
-                Destroy(banana);
-            }
-        }
-        spawnedBananas.Clear();
-        bananasCollected = 0;
-
-        for (int i = 0; i < totalBananas && i < bananaSpawnPositions.Length; i++)
-        {
-            Vector3 spawnPosition = platformMap.transform.position + bananaSpawnPositions[i];
-            GameObject banana = Instantiate(bananaPrefab, spawnPosition, Quaternion.identity);
-
-            banana.tag = "Banana";
-
-            Collider col = banana.GetComponent<Collider>();
-            if (col == null)
-            {
-                col = banana.AddComponent<SphereCollider>();
-            }
-            col.isTrigger = true;
-
-            spawnedBananas.Add(banana);
-            Debug.Log($"Banana {i + 1} spawnada en posición fija: {spawnPosition}");
-        }
-
-        if (remainingText != null)
-        {
-            remainingText.text = $"Bananas restantes: {totalBananas}";
-        }
-    }
-
-    private Vector3 GetRandomPositionOnMap()
-    {
-        if (platformMap == null) return Vector3.zero;
-
-        Vector3 mapPosition = platformMap.transform.position;
-        float mapSizeX = mapBounds.x;
-        float mapSizeZ = mapBounds.y;
-
-        float randomX = Random.Range(-mapSizeX / 2, mapSizeX / 2);
-        float randomZ = Random.Range(-mapSizeZ / 2, mapSizeZ / 2);
-
-        Vector3 randomPos = mapPosition + new Vector3(randomX, 0.5f, randomZ);
-
-        return randomPos;
     }
 
     private bool IsBananaPrefab(GameObject prefab)
@@ -813,7 +736,7 @@ public class GameManager : MonoBehaviour
                 audioSource.PlayOneShot(objectFoundSound);
             }
 
-            if (totalObjectsFound >= objectsToSpawn)
+            if (totalObjectsFound == objectsToSpawn)
             {
                 ShowAlbum();
             }
@@ -828,7 +751,7 @@ public class GameManager : MonoBehaviour
             albumPanel.SetActive(true);
 
             // Pausar el juego
-            Time.timeScale = 0f;
+           // Time.timeScale = 0f;
         }
         else
         {
