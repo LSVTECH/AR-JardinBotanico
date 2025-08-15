@@ -6,13 +6,14 @@ public class PartSelector : MonoBehaviour
     [Header("Part Settings")]
     public string partName;
     public int partIndex;
-    public Color highlightColor = Color.yellow; // Color configurable
+    public Color highlightColor = Color.yellow;
     public float highlightDuration = 0.3f;
+    public string colorPropertyName = "_BaseColor"; // Nombre alternativo común en URP
 
     private QRModelViewer viewer;
     private Renderer partRenderer;
     private Material originalMaterial;
-    private Color originalColor;
+    private bool hasValidColorProperty = false;
 
     void Start()
     {
@@ -22,7 +23,10 @@ public class PartSelector : MonoBehaviour
         if (partRenderer != null)
         {
             originalMaterial = partRenderer.material;
-            originalColor = originalMaterial.color;
+
+            // Verificar propiedades de color disponibles
+            hasValidColorProperty = originalMaterial.HasProperty("_Color") ||
+                                   originalMaterial.HasProperty(colorPropertyName);
         }
     }
 
@@ -37,23 +41,31 @@ public class PartSelector : MonoBehaviour
 
     IEnumerator HighlightPart()
     {
-        if (partRenderer == null) yield break;
+        if (partRenderer == null || !hasValidColorProperty) yield break;
 
-        // Guardar material original
+        // Crear material temporal para el resaltado
         Material tempMaterial = new Material(originalMaterial);
-        Color original = tempMaterial.color;
-
-        // Aplicar color de resaltado
-        tempMaterial.color = highlightColor;
         partRenderer.material = tempMaterial;
 
-        // Esperar y restaurar
+        // Aplicar resaltado usando propiedad correcta
+        if (originalMaterial.HasProperty("_Color"))
+        {
+            tempMaterial.color = highlightColor;
+        }
+        else if (originalMaterial.HasProperty(colorPropertyName))
+        {
+            tempMaterial.SetColor(colorPropertyName, highlightColor);
+        }
+
         yield return new WaitForSeconds(highlightDuration);
 
+        // Restaurar material original
         if (partRenderer != null)
         {
-            tempMaterial.color = original;
-            partRenderer.material = tempMaterial;
+            partRenderer.material = originalMaterial;
         }
+
+        // Destruir material temporal
+        Destroy(tempMaterial);
     }
 }

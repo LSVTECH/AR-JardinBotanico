@@ -12093,7 +12093,7 @@ MonoBehaviour:
     generalInfo: "Es un gigantesco \xE1rbol tropical americano, reconocible por su
       imponente altura (hasta 50 metros)"
     initialScale: 1.5
-    initialRotation: {x: -90, y: 0, z: 0}
+    initialRotation: {x: 0, y: 0, z: 0}
     partNames:
     - Hojas
     - Tallo
@@ -12106,7 +12106,7 @@ MonoBehaviour:
     modelName: Arbusto Tropical
     generalInfo: Arbusto comun en zonas calidas
     initialScale: 0.5
-    initialRotation: {x: 90, y: 0, z: 0}
+    initialRotation: {x: 0, y: 0, z: 0}
     partNames:
     - Hojas de arbusto
     - Tallo de arbusto
@@ -12120,7 +12120,7 @@ MonoBehaviour:
     generalInfo: "El guayac\xE1n (g\xE9nero Handroanthus o Tabebuia, como Handroanthus
       chrysanthus) es un \xE1rbol emblem\xE1tico de los tr\xF3picos americanos"
     initialScale: 0.1
-    initialRotation: {x: 90, y: 0, z: 0}
+    initialRotation: {x: 0, y: 0, z: 0}
     partNames:
     - Hojas de Guayacan
     - Tallo de Guayacan
@@ -12135,12 +12135,12 @@ MonoBehaviour:
     generalInfo: "El guayac\xE1n (g\xE9nero Handroanthus o Tabebuia, como Handroanthus
       chrysanthus) es un \xE1rbol emblem\xE1tico de los tr\xF3picos americanos"
     initialScale: 0.1
-    initialRotation: {x: 90, y: 0, z: 0}
+    initialRotation: {x: 0, y: 0, z: 0}
     partNames:
-    - Hojas de Guayacan
-    - Tallo de Guayacan
+    - Hojas de Ceiba
+    - Tallo de Ceiba
     partInfo:
-    - "Explosi\xF3n de flores amarillas al inicio de la sequ\xEDa."
+    - Hojas de ceiba
     - Superficie profundamente fisurada (con grietas longitudinales y transversales
       que forman placas escamosas irregulares).
   trackingTimeout: 0.5

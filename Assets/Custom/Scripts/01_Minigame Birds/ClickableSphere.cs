@@ -7,7 +7,7 @@ public class ClickableSphere : MonoBehaviour
 
     void OnMouseDown()
     {
-        GameManager.Instance.AddScore(objectData.pointValue);
+        //GameManager.Instance.AddScore(objectData.pointValue);
         Destroy(gameObject);
     }
 }
