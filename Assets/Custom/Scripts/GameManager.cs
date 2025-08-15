@@ -323,8 +323,6 @@ public class GameManager : MonoBehaviour
         Debug.Log("StartPlatformGame() llamado");
 
         DeactivateCollectableObjects();
-        CleanBananasFromObjectSearch();
-
         ResetAndExitGame();
 
         currentGameMode = GameMode.PlatformGame;
@@ -501,22 +499,6 @@ public class GameManager : MonoBehaviour
 
         return false;
     }
-
-    private void CleanBananasFromObjectSearch()
-    {
-        Debug.Log("Limpiando bananas del object search");
-
-        for (int i = spawnedObjects.Count - 1; i >= 0; i--)
-        {
-            if (spawnedObjects[i] != null && IsBananaPrefab(spawnedObjects[i]))
-            {
-                Debug.Log($"Removiendo banana del object search: {spawnedObjects[i].name}");
-                Destroy(spawnedObjects[i]);
-                spawnedObjects.RemoveAt(i);
-            }
-        }
-    }
-
     Vector3 GetRandomPositionAroundDevice()
     {
         Vector3 center = Camera.main != null ? Camera.main.transform.position : Vector3.zero;
