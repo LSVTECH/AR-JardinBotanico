@@ -21,8 +21,6 @@ public class GameManager : MonoBehaviour
     // --- Album / colección ---
     [Header("Album UI")]
     public GameObject albumPanel;            // Panel del álbum
-    public Transform albumGrid;              // Grid/Content para ítems
-    public GameObject albumItemPrefab;       // Prefab UI con Image+Text (icono y nombre)
     private HashSet<string> collectedBirdIds = new HashSet<string>();
 
     [Header("Platform Game Settings")]
@@ -328,13 +326,24 @@ public class GameManager : MonoBehaviour
         currentGameMode = GameMode.PlatformGame;
         platformGameActive = true;
 
+        // REINICIAR CONTADORES DE BANANAS CRÍTICOS
+        bananasCollected = 0;
+        totalBananas = 3; // Asegurar que siempre tenga un valor válido
+
         Debug.Log($"Modo de juego establecido: {currentGameMode}");
+        Debug.Log($"Bananas totales: {totalBananas}, Colectadas: {bananasCollected}");
 
         if (menuJardinBotanico != null) menuJardinBotanico.SetActive(false);
         if (gameUI != null) gameUI.SetActive(false);
         if (resultsPanel != null) resultsPanel.SetActive(false);
 
         PlacePlatformGame();
+
+        // Actualizar UI de bananas
+        if (remainingText != null)
+        {
+            remainingText.text = $"Bananas restantes: {totalBananas}";
+        }
     }
 
     public void CancelCurrentGame()
@@ -389,14 +398,6 @@ public class GameManager : MonoBehaviour
             platformMap = null;
         }
 
-        foreach (GameObject banana in spawnedBananas)
-        {
-            if (banana != null)
-            {
-                Destroy(banana);
-            }
-        }
-        spawnedBananas.Clear();
         bananasCollected = 0;
 
         VirtualJoystickFade joystick = FindObjectOfType<VirtualJoystickFade>();
@@ -598,27 +599,18 @@ public class GameManager : MonoBehaviour
         objectsToSpawn = birds.Count;
     }
 
-
     void ClearExistingObjects()
     {
+        // Asegurarnos de destruir los objetos en lugar de solo desactivarlos
         foreach (GameObject obj in spawnedObjects)
         {
             if (obj != null)
             {
-                obj.SetActive(false);
-                FloatingObj floater = obj.GetComponent<FloatingObj>();
-                if (floater != null)
-                {
-                    floater.enabled = false;
-                }
-
-                Collider col = obj.GetComponent<Collider>();
-                if (col != null)
-                {
-                    col.enabled = false;
-                }
+                Destroy(obj);
             }
         }
+        spawnedObjects.Clear();
+        spawnedPositions.Clear();
     }
 
     void DeactivateCollectableObjects()
@@ -645,51 +637,18 @@ public class GameManager : MonoBehaviour
 
     void ReactivateCollectableObjects()
     {
-        if (spawnedObjects.Count == 0)
-        {
-            SpawnObjects();
-            return;
-        }
-
+        // 1. Destruir completamente los objetos existentes
         foreach (GameObject obj in spawnedObjects)
         {
-            if (obj != null && !IsBananaPrefab(obj))
+            if (obj != null)
             {
-                obj.SetActive(true);
-                Collider col = obj.GetComponent<Collider>();
-                if (col != null)
-                {
-                    col.enabled = true;
-                }
-
-                FloatingObj floater = obj.GetComponent<FloatingObj>();
-                if (floater != null)
-                {
-                    floater.enabled = true;
-                }
-
-                CollectableItem collectable = obj.GetComponent<CollectableItem>();
-                if (collectable != null)
-                {
-                    collectable.itemValue = 10;
-                }
-            }
-            else if (obj != null && IsBananaPrefab(obj))
-            {
-                obj.SetActive(false);
-                Collider col = obj.GetComponent<Collider>();
-                if (col != null)
-                {
-                    col.enabled = false;
-                }
-
-                FloatingObj floater = obj.GetComponent<FloatingObj>();
-                if (floater != null)
-                {
-                    floater.enabled = false;
-                }
+                Destroy(obj);
             }
         }
+        spawnedObjects.Clear();
+
+        // 2. Generar nuevos objetos
+        SpawnObjects();
     }
 
     public void AddScore(int points)
@@ -822,18 +781,35 @@ public class GameManager : MonoBehaviour
     }
     public void CollectBanana()
     {
+        // VERIFICACIÓN EXTENSA PARA EVITAR PROBLEMAS
+        if (bananasCollected < 0) bananasCollected = 0;
+        if (totalBananas <= 0) totalBananas = 3; // Valor por defecto si es inválido
+
+        // Si ya hemos recolectado todas, no hacer nada
+        if (bananasCollected >= totalBananas)
+        {
+            Debug.LogWarning("Intento de recolectar banana cuando ya se completó la colección");
+            return;
+        }
+
         bananasCollected++;
         Debug.Log($"Bananas recolectadas: {bananasCollected}/{totalBananas}");
 
         if (remainingText != null)
         {
-            remainingText.text = $"Bananas restantes: {totalBananas - bananasCollected}";
+            int remaining = totalBananas - bananasCollected;
+            remainingText.text = $"Bananas restantes: {Mathf.Max(0, remaining)}";
         }
 
-        if (bananasCollected >= totalBananas)
+        // Verificación robusta para finalizar el juego
+        if (bananasCollected >= totalBananas && totalBananas > 0)
         {
             Debug.Log("¡Todas las bananas recolectadas!");
             ShowCollectionCompletePopup();
+        }
+        else if (bananasCollected >= totalBananas)
+        {
+            Debug.LogWarning("Estado inconsistente: bananasCollected >= totalBananas pero totalBananas es 0 o negativo");
         }
     }
     public void CollectBird(string birdID)
