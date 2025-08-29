@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -38,6 +39,7 @@ public class GameManager : MonoBehaviour
     [Header("Audio")]
     public AudioSource audioSource;
     public AudioClip objectFoundSound;
+    public AudioClip backgroundMusic; // Música de fondo para el minijuego de aves
 
     [Header("UI Elements")]
     public Text scoreText;
@@ -50,6 +52,17 @@ public class GameManager : MonoBehaviour
     [Header("Collection UI")]
     public GameObject collectionCompletePopup;
     public Text remainingText;
+
+    [Header("Bird Check Animations")]
+    public Animator[] checkAnimators; // Arreglo de animadores de checks
+    public string[] birdIds; // IDs de las aves en el mismo orden que los prefabs
+
+    [Header("Result UI")]
+    public GameObject resultsPanel;
+    public Text finalScoreText;
+    public Text highScoreText;
+    public Text timeText;
+    public Text bestTimeText;
 
     private List<GameObject> spawnedObjects = new List<GameObject>();
     private int currentScore = 0;
@@ -75,13 +88,6 @@ public class GameManager : MonoBehaviour
 
     const string HIGH_SCORE_KEY = "HighScore";
     const string BEST_TIME_KEY = "BestTime";
-
-    [Header("Result UI")]
-    public GameObject resultsPanel;
-    public Text finalScoreText;
-    public Text highScoreText;
-    public Text timeText;
-    public Text bestTimeText;
 
     void Awake()
     {
@@ -130,16 +136,29 @@ public class GameManager : MonoBehaviour
                     if (item != null)
                     {
                         Debug.Log("CollectableItem encontrado, llamando Collect()");
+
+                        // Obtener el nombre base (sin "Clone")
+                        string originalName = hit.collider.gameObject.name.Replace("(Clone)", "").Trim();
+
                         item.Collect();
+                        CollectBird(originalName); // Pasar el nombre base
                     }
                     else
                     {
                         Debug.Log("No se encontró CollectableItem en el objeto tocado");
                     }
                 }
-                else
+            }
+        }
+
+        // Verificación adicional para asegurar que los checks estén activos
+        if (currentGameMode == GameMode.ObjectSearch)
+        {
+            for (int i = 0; i < checkAnimators.Length; i++)
+            {
+                if (checkAnimators[i] != null && !checkAnimators[i].gameObject.activeSelf)
                 {
-                    Debug.Log("");
+                    checkAnimators[i].gameObject.SetActive(true);
                 }
             }
         }
@@ -166,10 +185,13 @@ public class GameManager : MonoBehaviour
         platformGameActive = false;
         currentGameMode = GameMode.None;
 
-        // 2. Limpiar objetos recolectables (solo desactivar, no reactivar)
+        // 2. Detener música de fondo
+        StopBackgroundMusic();
+
+        // 3. Limpiar objetos recolectables (solo desactivar, no reactivar)
         ClearExistingObjects();
 
-        // 3. Limpiar juego de plataformas
+        // 4. Limpiar juego de plataformas
         if (platformPlayer != null)
         {
             Destroy(platformPlayer);
@@ -182,22 +204,49 @@ public class GameManager : MonoBehaviour
             platformMap = null;
         }
 
-        // 4. Ocultar todos los UI
+        // 5. Resetear animaciones de checks
+        ResetCheckAnimations();
+
+        // 6. Ocultar todos los UI
         if (gameUI != null) gameUI.SetActive(false);
         if (collectionCompletePopup != null) collectionCompletePopup.SetActive(false);
         if (resultsPanel != null) resultsPanel.SetActive(false);
 
-        // 5. Mostrar menú principal
+        // 7. Mostrar menú principal
         if (menuJardinBotanico != null) menuJardinBotanico.SetActive(true);
 
-        // 6. Reanudar tiempo de juego
+        // 8. Reanudar tiempo de juego
         Time.timeScale = 1f;
 
-        // 7. Desactivar joystick si está visible
+        // 9. Desactivar joystick si está visible
         VirtualJoystickFade joystick = FindObjectOfType<VirtualJoystickFade>();
         if (joystick != null)
         {
             joystick.SetVisibility(false);
+        }
+    }
+
+    private void PlayBackgroundMusic()
+    {
+        if (audioSource != null && backgroundMusic != null)
+        {
+            audioSource.clip = backgroundMusic;
+            audioSource.loop = true;
+            audioSource.Play();
+            Debug.Log("Música de fondo iniciada");
+        }
+        else
+        {
+            Debug.LogWarning("AudioSource o backgroundMusic no asignados");
+        }
+    }
+
+    private void StopBackgroundMusic()
+    {
+        if (audioSource != null)
+        {
+            audioSource.Stop();
+            Debug.Log("Música de fondo detenida");
         }
     }
 
@@ -290,8 +339,6 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
-        Debug.Log("StartGame() llamado");
-
         ResetAndExitGame();
         EnsureARSetup();
 
@@ -311,15 +358,14 @@ public class GameManager : MonoBehaviour
         if (menuJardinBotanico != null) menuJardinBotanico.SetActive(false);
         if (resultsPanel != null) resultsPanel.SetActive(false);
 
-        ReactivateCollectableObjects();
+        // Reproducir música de fondo
+        PlayBackgroundMusic();
 
-        Debug.Log("StartGame() completado");
+        ReactivateCollectableObjects();
     }
 
     public void StartPlatformGame()
     {
-        Debug.Log("StartPlatformGame() llamado");
-
         DeactivateCollectableObjects();
         ResetAndExitGame();
 
@@ -329,9 +375,6 @@ public class GameManager : MonoBehaviour
         // REINICIAR CONTADORES DE BANANAS CRÍTICOS
         bananasCollected = 0;
         totalBananas = 3; // Asegurar que siempre tenga un valor válido
-
-        Debug.Log($"Modo de juego establecido: {currentGameMode}");
-        Debug.Log($"Bananas totales: {totalBananas}, Colectadas: {bananasCollected}");
 
         if (menuJardinBotanico != null) menuJardinBotanico.SetActive(false);
         if (gameUI != null) gameUI.SetActive(false);
@@ -349,6 +392,9 @@ public class GameManager : MonoBehaviour
     public void CancelCurrentGame()
     {
         Debug.Log($"Cancelando juego actual: {currentGameMode}");
+
+        // Detener música de fondo
+        StopBackgroundMusic();
 
         switch (currentGameMode)
         {
@@ -500,6 +546,7 @@ public class GameManager : MonoBehaviour
 
         return false;
     }
+
     Vector3 GetRandomPositionAroundDevice()
     {
         Vector3 center = Camera.main != null ? Camera.main.transform.position : Vector3.zero;
@@ -690,9 +737,6 @@ public class GameManager : MonoBehaviour
         if (albumPanel != null)
         {
             albumPanel.SetActive(true);
-
-            // Pausar el juego
-           // Time.timeScale = 0f;
         }
         else
         {
@@ -701,7 +745,6 @@ public class GameManager : MonoBehaviour
             ShowCollectionCompletePopup();
         }
     }
-
 
     void UpdateScoreUI()
     {
@@ -779,6 +822,7 @@ public class GameManager : MonoBehaviour
             bestTimeText.text = BestTime == Mathf.Infinity ? "--:--" : FormatTime(BestTime);
         }
     }
+
     public void CollectBanana()
     {
         // VERIFICACIÓN EXTENSA PARA EVITAR PROBLEMAS
@@ -812,6 +856,7 @@ public class GameManager : MonoBehaviour
             Debug.LogWarning("Estado inconsistente: bananasCollected >= totalBananas pero totalBananas es 0 o negativo");
         }
     }
+
     public void CollectBird(string birdID)
     {
         if (string.IsNullOrEmpty(birdID)) return;
@@ -825,10 +870,60 @@ public class GameManager : MonoBehaviour
             // Actualizar UI del álbum
             UpdateAlbumUI();
         }
+
+        // Activar la animación del check correspondiente
+        ActivateCheckAnimation(birdID);
     }
+
     private void UpdateAlbumUI()
     {
         // Aquí implementarías la lógica para actualizar el álbum
         // Mostrar las aves recolectadas, etc.
+    }
+
+    private void ResetCheckAnimations()
+    {
+        for (int i = 0; i < checkAnimators.Length; i++)
+        {
+            if (checkAnimators[i] != null)
+            {
+                // Asegurar que el GameObject esté activo
+                checkAnimators[i].gameObject.SetActive(true);
+
+                // Resetear el parámetro booleano
+                checkAnimators[i].SetBool("Activate", false);
+
+                // Forzar un reinicio completo del Animator
+                checkAnimators[i].Play("EmptyState", -1, 0f);
+                checkAnimators[i].Update(0f);
+
+                Debug.Log($"Check {i} reiniciado");
+            }
+        }
+    }
+
+    private void ActivateCheckAnimation(string birdID)
+    {
+        int birdIndex = System.Array.IndexOf(birdIds, birdID);
+
+        if (birdIndex >= 0 && birdIndex < checkAnimators.Length && checkAnimators[birdIndex] != null)
+        {
+            // Asegurar que el GameObject esté activo
+            checkAnimators[birdIndex].gameObject.SetActive(true);
+
+            // Pequeña pausa antes de activar el booleano
+            StartCoroutine(ActivateCheckWithDelay(checkAnimators[birdIndex]));
+        }
+    }
+
+    private IEnumerator ActivateCheckWithDelay(Animator animator)
+    {
+        // Pequeña pausa para asegurar que el Animator esté listo
+        yield return new WaitForEndOfFrame();
+
+        // Activar el booleano
+        animator.SetBool("Activate", true);
+
+        Debug.Log("Check activado: " + animator.name);
     }
 }
