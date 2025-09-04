@@ -13,6 +13,9 @@ public class Player3DController : MonoBehaviour
     private CharacterController characterController;
     private Animator animator;
     private bool isMoving = false;
+    private float currentSpeed;
+    private float speedVelocity;
+    private Vector3 movementDirection;
 
     void Start()
     {
@@ -44,7 +47,7 @@ public class Player3DController : MonoBehaviour
         if (joystick == null) return;
 
         // Obtener dirección del joystick
-        Vector3 movementDirection = joystick.GetMovementDirection();
+        movementDirection = joystick.GetMovementDirection();
         float movementIntensity = joystick.GetMovementIntensity();
 
         isMoving = movementIntensity > 0.1f;
@@ -76,16 +79,18 @@ public class Player3DController : MonoBehaviour
     {
         if (animator != null)
         {
-            animator.SetBool("IsMoving", isMoving);
+            // Calcular la velocidad actual basada en la intensidad del movimiento
+            float targetSpeed = isMoving ? joystick.GetMovementIntensity() : 0f;
 
-            if (isMoving && joystick != null)
-            {
-                animator.SetFloat("MoveSpeed", joystick.GetMovementIntensity());
-            }
-            else
-            {
-                animator.SetFloat("MoveSpeed", 0);
-            }
+            // Suavizar la transición de velocidad
+            currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedVelocity, 0.1f);
+
+            // Actualizar parámetros del Animator
+            animator.SetFloat("Speed", currentSpeed);
+            animator.SetBool("Moving", isMoving);
+
+            // Para movimiento en X específicamente, puedes agregar un parámetro adicional si es necesario
+            animator.SetFloat("MoveX", movementDirection.x);
         }
     }
 
@@ -96,6 +101,14 @@ public class Player3DController : MonoBehaviour
         if (characterController != null)
         {
             characterController.enabled = active;
+        }
+
+        // Resetear animaciones cuando se desactiva el control
+        if (!active && animator != null)
+        {
+            animator.SetFloat("Speed", 0);
+            animator.SetBool("Moving", false);
+            animator.SetFloat("MoveX", 0);
         }
     }
 }

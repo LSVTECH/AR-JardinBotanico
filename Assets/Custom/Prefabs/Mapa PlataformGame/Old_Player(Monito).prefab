@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 6032561657752719102}
   - component: {fileID: -585158702937476941}
   m_Layer: 6
-  m_Name: Player(Monito)
+  m_Name: Old_Player(Monito)
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

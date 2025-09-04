@@ -50,7 +50,8 @@ public class GameManager : MonoBehaviour
     public Button startPlatformGameButton;
 
     [Header("Collection UI")]
-    public GameObject collectionCompletePopup;
+    public GameObject PopUpPlataformGame;
+    public GameObject PopUpObjectGame;
     public Text remainingText;
 
     [Header("Bird Check Animations")]
@@ -164,18 +165,28 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void ShowCollectionCompletePopup()
+    public void ShowPopUpPlataformGame()
     {
-        if (collectionCompletePopup != null)
+        if (PopUpPlataformGame != null)
         {
-            collectionCompletePopup.SetActive(true);
+            PopUpPlataformGame.SetActive(true);
         }
         else
         {
-            Debug.LogWarning("collectionCompletePopup no asignado en GameManager");
+            Debug.LogWarning("PopUpPlataformGame no asignado en GameManager");
         }
     }
-
+    public void ShowPopUpObjectGame()
+    {
+        if (PopUpObjectGame != null)
+        {
+            PopUpObjectGame.SetActive(true);
+        }
+        else
+        {
+            Debug.LogWarning("PopUpObjectGame no asignado en GameManager");
+        }
+    }
     public void ResetAndExitGame()
     {
         // 1. Reiniciar variables del juego
@@ -209,7 +220,7 @@ public class GameManager : MonoBehaviour
 
         // 6. Ocultar todos los UI
         if (gameUI != null) gameUI.SetActive(false);
-        if (collectionCompletePopup != null) collectionCompletePopup.SetActive(false);
+        if (PopUpPlataformGame != null) PopUpPlataformGame.SetActive(false);
         if (resultsPanel != null) resultsPanel.SetActive(false);
 
         // 7. Mostrar menú principal
@@ -742,7 +753,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogWarning("albumPanel no asignado en GameManager");
             // Mostrar popup normal como fallback
-            ShowCollectionCompletePopup();
+            ShowPopUpPlataformGame();
         }
     }
 
@@ -849,7 +860,7 @@ public class GameManager : MonoBehaviour
         if (bananasCollected >= totalBananas && totalBananas > 0)
         {
             Debug.Log("¡Todas las bananas recolectadas!");
-            ShowCollectionCompletePopup();
+            ShowPopUpPlataformGame();
         }
         else if (bananasCollected >= totalBananas)
         {
