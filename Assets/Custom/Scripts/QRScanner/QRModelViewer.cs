@@ -1,3 +1,4 @@
+// QRModelViewer.cs
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -23,7 +24,7 @@ public class QRModelViewer : MonoBehaviour
     public GameObject menuPanel;
     public GameObject backButton;
 
-    private Dictionary<string, GameObject> activeModels = new Dictionary<string, GameObject>();
+    private Dictionary<string, ModelState> activeModels = new Dictionary<string, ModelState>();
     private Dictionary<string, ModelInfo> modelInfoDictionary = new Dictionary<string, ModelInfo>();
     private string currentActiveQR = "";
     private float trackingTimer = 0f;
@@ -37,12 +38,14 @@ public class QRModelViewer : MonoBehaviour
     private Coroutine delayedResetCoroutine;
     private bool isResettingSession = false;
 
-    private ModelInteractor currentModelInteractor;
-
-    [Header("Manual Rotation and Scale")]
-    private Quaternion manualRotationOffset = Quaternion.identity;
-    private Vector3 manualScale = Vector3.one;
-    private bool isManipulating = false;
+    private class ModelState
+    {
+        public GameObject modelObject;
+        public ModelInteractor interactor;
+        public Quaternion manualRotationOffset;
+        public Vector3 manualScale;
+        public bool isManipulating;
+    }
 
     void Start()
     {
@@ -60,26 +63,20 @@ public class QRModelViewer : MonoBehaviour
         foreach (ModelInfo model in models)
         {
             if (!string.IsNullOrEmpty(model.qrCodeName))
-            {
                 modelInfoDictionary[model.qrCodeName] = model;
-            }
         }
     }
 
     void OnEnable()
     {
         if (trackedImageManager != null)
-        {
             trackedImageManager.trackedImagesChanged += OnImageChanged;
-        }
     }
 
     void OnDisable()
     {
         if (trackedImageManager != null)
-        {
             trackedImageManager.trackedImagesChanged -= OnImageChanged;
-        }
     }
 
     void Update()
@@ -87,12 +84,9 @@ public class QRModelViewer : MonoBehaviour
         if (!isScanning) return;
 
         bool anyTracked = false;
-
         foreach (var qrCode in new List<string>(activeModels.Keys))
         {
-            bool isTracked = IsQRBeingTracked(qrCode);
-
-            if (isTracked)
+            if (IsQRBeingTracked(qrCode))
             {
                 SetModelVisibility(qrCode, true);
                 anyTracked = true;
@@ -103,7 +97,6 @@ public class QRModelViewer : MonoBehaviour
                 if (trackingTimer > trackingTimeout)
                 {
                     SetModelVisibility(qrCode, false);
-
                     if (currentActiveQR == qrCode)
                     {
                         currentActiveQR = "";
@@ -121,92 +114,106 @@ public class QRModelViewer : MonoBehaviour
         if (!isScanning || isResettingSession) return;
 
         foreach (var trackedImage in eventArgs.added)
-        {
-            string qrCode = trackedImage.referenceImage.name;
-            if (!activeModels.ContainsKey(qrCode))
-            {
-                LoadModel(trackedImage);
-            }
-        }
+            OnTrackedImageAdded(trackedImage);
 
         foreach (var trackedImage in eventArgs.updated)
-        {
-            string qrCode = trackedImage.referenceImage.name;
-            if (trackedImage.trackingState == UnityEngine.XR.ARSubsystems.TrackingState.Tracking)
-            {
-                UpdateModelPosition(trackedImage);
-                SetModelVisibility(qrCode, true);
-
-                if (currentActiveQR != qrCode)
-                {
-                    currentActiveQR = qrCode;
-                    UpdateModelUI();
-                }
-            }
-        }
+            OnTrackedImageUpdated(trackedImage);
 
         foreach (var trackedImage in eventArgs.removed)
+            OnTrackedImageRemoved(trackedImage);
+    }
+
+    private void OnTrackedImageAdded(ARTrackedImage trackedImage)
+    {
+        string qrCode = trackedImage.referenceImage.name;
+        if (!activeModels.ContainsKey(qrCode))
+            LoadModel(trackedImage);
+    }
+
+    private void OnTrackedImageUpdated(ARTrackedImage trackedImage)
+    {
+        string qrCode = trackedImage.referenceImage.name;
+        if (trackedImage.trackingState == UnityEngine.XR.ARSubsystems.TrackingState.Tracking)
         {
-            string qrCode = trackedImage.referenceImage.name;
-            RemoveModel(qrCode);
+            UpdateModelPosition(trackedImage);
+            SetModelVisibility(qrCode, true);
+
+            if (currentActiveQR != qrCode)
+            {
+                currentActiveQR = qrCode;
+                UpdateModelUI();
+            }
         }
+    }
+
+    private void OnTrackedImageRemoved(ARTrackedImage trackedImage)
+    {
+        string qrCode = trackedImage.referenceImage.name;
+        RemoveModel(qrCode);
     }
 
     void LoadModel(ARTrackedImage trackedImage)
     {
         string qrCode = trackedImage.referenceImage.name;
-
         if (modelInfoDictionary.TryGetValue(qrCode, out ModelInfo modelInfo))
         {
             GameObject model = Instantiate(modelInfo.modelPrefab, trackedImage.transform);
             model.transform.localPosition = Vector3.zero;
 
-            manualRotationOffset = Quaternion.Euler(modelInfo.initialRotation);
-            manualScale = Vector3.one * modelInfo.initialScale;
+            ModelState state = new ModelState
+            {
+                modelObject = model,
+                manualRotationOffset = Quaternion.Euler(modelInfo.initialRotation),
+                manualScale = Vector3.one * modelInfo.initialScale,
+                isManipulating = false
+            };
 
-            model.transform.localRotation = manualRotationOffset;
-            model.transform.localScale = manualScale;
+            model.transform.localRotation = state.manualRotationOffset;
+            model.transform.localScale = state.manualScale;
 
-            activeModels[qrCode] = model;
+            ModelInteractor interactor = model.AddComponent<ModelInteractor>();
+            interactor.Initialize(this, qrCode);
+            state.interactor = interactor;
+
+            activeModels[qrCode] = state;
             currentActiveQR = qrCode;
-
-            currentModelInteractor = model.AddComponent<ModelInteractor>();
-            currentModelInteractor.Initialize(this);
-
             UpdateModelUI();
             trackingTimer = 0f;
         }
     }
 
-    // UNICO METODO UpdateModelPosition
     void UpdateModelPosition(ARTrackedImage trackedImage)
     {
-        if (isManipulating) return;
-
         string qrCode = trackedImage.referenceImage.name;
-        if (activeModels.TryGetValue(qrCode, out GameObject model))
+        if (activeModels.TryGetValue(qrCode, out ModelState state))
         {
-            model.transform.position = trackedImage.transform.position;
-            model.transform.rotation = trackedImage.transform.rotation * manualRotationOffset;
-            model.transform.localScale = manualScale;
+            if (state.isManipulating) return;
+
+            state.modelObject.transform.position = trackedImage.transform.position;
+            state.modelObject.transform.rotation = trackedImage.transform.rotation * state.manualRotationOffset;
+            state.modelObject.transform.localScale = state.manualScale;
         }
     }
 
-    public void StartManipulation()
+    public void StartManipulation(string qrCode)
     {
-        isManipulating = true;
+        if (activeModels.TryGetValue(qrCode, out ModelState state))
+            state.isManipulating = true;
     }
 
-    public void StopManipulation(Quaternion newRotation, Vector3 newScale)
+    public void StopManipulation(string qrCode, Quaternion newRotation, Vector3 newScale)
     {
-        isManipulating = false;
-        manualRotationOffset = newRotation;
-        manualScale = newScale;
+        if (activeModels.TryGetValue(qrCode, out ModelState state))
+        {
+            state.isManipulating = false;
+            state.manualRotationOffset = newRotation;
+            state.manualScale = newScale;
+        }
     }
 
     void RemoveModel(string qrCode)
     {
-        if (activeModels.TryGetValue(qrCode, out GameObject model))
+        if (activeModels.TryGetValue(qrCode, out ModelState state))
         {
             if (currentActiveQR == qrCode)
             {
@@ -214,7 +221,7 @@ public class QRModelViewer : MonoBehaviour
                 UpdateModelUI();
             }
 
-            Destroy(model);
+            Destroy(state.modelObject);
             activeModels.Remove(qrCode);
         }
     }
@@ -223,8 +230,7 @@ public class QRModelViewer : MonoBehaviour
     {
         if (trackedImageManager == null) return false;
 
-        var trackedImages = trackedImageManager.trackables;
-        foreach (var trackedImage in trackedImages)
+        foreach (var trackedImage in trackedImageManager.trackables)
         {
             if (trackedImage.referenceImage.name == qrCode &&
                 trackedImage.trackingState == UnityEngine.XR.ARSubsystems.TrackingState.Tracking)
@@ -237,10 +243,8 @@ public class QRModelViewer : MonoBehaviour
 
     void SetModelVisibility(string qrCode, bool visible)
     {
-        if (activeModels.TryGetValue(qrCode, out GameObject model) && model != null)
-        {
-            model.SetActive(visible);
-        }
+        if (activeModels.TryGetValue(qrCode, out ModelState state) && state.modelObject != null)
+            state.modelObject.SetActive(visible);
     }
 
     void UpdateModelUI()
@@ -249,16 +253,10 @@ public class QRModelViewer : MonoBehaviour
             modelInfoDictionary.TryGetValue(currentActiveQR, out ModelInfo modelInfo))
         {
             modelNameText.text = modelInfo.modelName;
-
-            if (partSelected && currentSelectedPart >= 0 &&
-                currentSelectedPart < modelInfo.partInfo.Length)
-            {
-                modelInfoText.text = modelInfo.partInfo[currentSelectedPart];
-            }
-            else
-            {
-                modelInfoText.text = modelInfo.generalInfo;
-            }
+            modelInfoText.text = partSelected && currentSelectedPart >= 0 &&
+                currentSelectedPart < modelInfo.partInfo.Length ?
+                modelInfo.partInfo[currentSelectedPart] :
+                modelInfo.generalInfo;
 
             for (int i = 0; i < partButtons.Length; i++)
             {
@@ -268,7 +266,6 @@ public class QRModelViewer : MonoBehaviour
                 if (shouldActivate)
                 {
                     partButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = modelInfo.partNames[i];
-
                     var colors = partButtons[i].colors;
                     colors.normalColor = (i == currentSelectedPart) ? Color.yellow : Color.white;
                     partButtons[i].colors = colors;
@@ -280,9 +277,7 @@ public class QRModelViewer : MonoBehaviour
             modelNameText.text = "";
             modelInfoText.text = "";
             foreach (var button in partButtons)
-            {
                 button.gameObject.SetActive(false);
-            }
         }
     }
 
@@ -293,30 +288,27 @@ public class QRModelViewer : MonoBehaviour
         partSelected = true;
         currentSelectedPart = partIndex;
 
-        if (!string.IsNullOrEmpty(currentActiveQR))
+        if (!string.IsNullOrEmpty(currentActiveQR) &&
+            modelInfoDictionary.TryGetValue(currentActiveQR, out ModelInfo modelInfo) &&
+            partIndex < modelInfo.partInfo.Length)
         {
-            if (modelInfoDictionary.TryGetValue(currentActiveQR, out ModelInfo modelInfo))
-            {
-                if (partIndex < modelInfo.partInfo.Length)
-                {
-                    modelInfoText.text = modelInfo.partInfo[partIndex];
+            modelInfoText.text = modelInfo.partInfo[partIndex];
 
-                    for (int i = 0; i < partButtons.Length; i++)
-                    {
-                        if (i < modelInfo.partNames.Length)
-                        {
-                            var colors = partButtons[i].colors;
-                            colors.normalColor = (i == partIndex) ? Color.yellow : Color.white;
-                            partButtons[i].colors = colors;
-                        }
-                    }
+            for (int i = 0; i < partButtons.Length; i++)
+            {
+                if (i < modelInfo.partNames.Length)
+                {
+                    var colors = partButtons[i].colors;
+                    colors.normalColor = (i == partIndex) ? Color.yellow : Color.white;
+                    partButtons[i].colors = colors;
                 }
             }
         }
 
-        if (currentModelInteractor != null)
+        if (activeModels.TryGetValue(currentActiveQR, out ModelState state) &&
+            state.interactor != null)
         {
-            currentModelInteractor.StartInteraction();
+            state.interactor.StartInteraction();
         }
     }
 
@@ -331,9 +323,7 @@ public class QRModelViewer : MonoBehaviour
     {
         isScanning = enable;
         if (trackedImageManager != null)
-        {
             trackedImageManager.enabled = enable;
-        }
     }
 
     public void OnQRButtonPressed()
@@ -346,9 +336,7 @@ public class QRModelViewer : MonoBehaviour
         ToggleScanning(true);
 
         if (arSession != null)
-        {
             arSession.Reset();
-        }
     }
 
     public void OnBackButtonPressed()
@@ -366,42 +354,26 @@ public class QRModelViewer : MonoBehaviour
             if (delayedResetCoroutine != null) StopCoroutine(delayedResetCoroutine);
             delayedResetCoroutine = StartCoroutine(DelayedSessionReset());
         }
-
-        if (currentModelInteractor != null)
-        {
-            currentModelInteractor.StopInteraction();
-        }
-        currentModelInteractor = null;
     }
 
     IEnumerator DelayedSessionReset()
     {
         yield return null;
-
         if (arSession != null)
-        {
             arSession.Reset();
-        }
-
         isResettingSession = false;
     }
 
     void ClearAllModels()
     {
         foreach (var pair in activeModels)
-        {
-            if (pair.Value != null)
-            {
-                DestroyImmediate(pair.Value);
-            }
-        }
+            if (pair.Value.modelObject != null)
+                DestroyImmediate(pair.Value.modelObject);
+
         activeModels.Clear();
         currentActiveQR = "";
-
         Resources.UnloadUnusedAssets();
         System.GC.Collect();
-
-        currentModelInteractor = null;
     }
 }
 

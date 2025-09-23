@@ -1,3 +1,4 @@
+// ModelInteractor.cs
 using UnityEngine;
 
 public class ModelInteractor : MonoBehaviour
@@ -15,10 +16,12 @@ public class ModelInteractor : MonoBehaviour
     private Transform modelTransform;
     private Quaternion startRotation;
     private Vector3 startScale;
+    private string qrCode;
 
-    public void Initialize(QRModelViewer qrViewer)
+    public void Initialize(QRModelViewer qrViewer, string qrCode)
     {
         viewer = qrViewer;
+        this.qrCode = qrCode;
         modelTransform = transform;
         startRotation = modelTransform.localRotation;
         startScale = modelTransform.localScale;
@@ -28,40 +31,31 @@ public class ModelInteractor : MonoBehaviour
     {
         if (!isInteracting) return;
 
-        // Rotación con un dedo
         if (Input.touchCount == 1)
-        {
             HandleRotation();
-        }
-        // Escalado con dos dedos
         else if (Input.touchCount == 2)
-        {
             HandleScaling();
-        }
     }
 
     void HandleRotation()
     {
         Touch touch = Input.GetTouch(0);
 
-        if (touch.phase == TouchPhase.Began)
+        switch (touch.phase)
         {
-            lastTouchPosition = touch.position;
-            viewer.StartManipulation();
-        }
-        else if (touch.phase == TouchPhase.Moved)
-        {
-            Vector2 delta = touch.position - lastTouchPosition;
-
-            // Rotación local (relativa al modelo)
-            modelTransform.Rotate(modelTransform.up, -delta.x * rotationSpeed, Space.World);
-            modelTransform.Rotate(modelTransform.right, delta.y * rotationSpeed, Space.World);
-
-            lastTouchPosition = touch.position;
-        }
-        else if (touch.phase == TouchPhase.Ended)
-        {
-            viewer.StopManipulation(modelTransform.localRotation, modelTransform.localScale);
+            case TouchPhase.Began:
+                lastTouchPosition = touch.position;
+                viewer.StartManipulation(qrCode);
+                break;
+            case TouchPhase.Moved:
+                Vector2 delta = touch.position - lastTouchPosition;
+                modelTransform.Rotate(modelTransform.up, -delta.x * rotationSpeed, Space.World);
+                modelTransform.Rotate(modelTransform.right, delta.y * rotationSpeed, Space.World);
+                lastTouchPosition = touch.position;
+                break;
+            case TouchPhase.Ended:
+                viewer.StopManipulation(qrCode, modelTransform.localRotation, modelTransform.localScale);
+                break;
         }
     }
 
@@ -73,7 +67,7 @@ public class ModelInteractor : MonoBehaviour
         if (touch1.phase == TouchPhase.Began || touch2.phase == TouchPhase.Began)
         {
             initialDistance = Vector2.Distance(touch1.position, touch2.position);
-            viewer.StartManipulation();
+            viewer.StartManipulation(qrCode);
         }
         else if (touch1.phase == TouchPhase.Moved || touch2.phase == TouchPhase.Moved)
         {
@@ -90,17 +84,10 @@ public class ModelInteractor : MonoBehaviour
         }
         else if (touch1.phase == TouchPhase.Ended || touch2.phase == TouchPhase.Ended)
         {
-            viewer.StopManipulation(modelTransform.localRotation, modelTransform.localScale);
+            viewer.StopManipulation(qrCode, modelTransform.localRotation, modelTransform.localScale);
         }
     }
 
-    public void StartInteraction()
-    {
-        isInteracting = true;
-    }
-
-    public void StopInteraction()
-    {
-        isInteracting = false;
-    }
+    public void StartInteraction() => isInteracting = true;
+    public void StopInteraction() => isInteracting = false;
 }

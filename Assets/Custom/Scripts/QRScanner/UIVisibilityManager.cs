@@ -1,3 +1,4 @@
+// UIVisibilityManager.cs
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -44,8 +45,6 @@ public class UIVisibilityManager : MonoBehaviour
         canvasGroup.alpha = currentAlpha;
 
         if (targetAlpha == 0f && currentAlpha < 0.01f)
-        {
             gameObject.SetActive(false);
-        }
     }
 }

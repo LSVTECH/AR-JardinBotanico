@@ -53,6 +53,12 @@ public class GameManager : MonoBehaviour
     public GameObject PopUpPlataformGame;
     public GameObject PopUpObjectGame;
     public Text remainingText;
+    public GameObject ArrastrarTexto;
+    public GameObject BGjoystick;
+
+    [Header("First Move Settings")]
+    public GameObject objectToDisableOnFirstMove; // Referencia al GameObject a desactivar
+    private bool hasMoved = false; // Bandera para rastrear si ya se ha movido
 
     [Header("Bird Check Animations")]
     public Animator[] checkAnimators; // Arreglo de animadores de checks
@@ -122,6 +128,8 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        OcultarTextoGuia();
+
         if (currentGameMode == GameMode.ObjectSearch && Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
@@ -936,5 +944,13 @@ public class GameManager : MonoBehaviour
         animator.SetBool("Activate", true);
 
         Debug.Log("Check activado: " + animator.name);
+    }
+
+    public void OcultarTextoGuia()
+    {
+        if (BGjoystick.activeSelf == true)
+        {
+            ArrastrarTexto.SetActive(false);
+        }
     }
 }
