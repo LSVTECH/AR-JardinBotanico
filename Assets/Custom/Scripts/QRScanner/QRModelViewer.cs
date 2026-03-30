@@ -1,4 +1,4 @@
-// QRModelViewer.cs
+﻿// QRModelViewer.cs
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -70,13 +70,13 @@ public class QRModelViewer : MonoBehaviour
     void OnEnable()
     {
         if (trackedImageManager != null)
-            trackedImageManager.trackedImagesChanged += OnImageChanged;
+            trackedImageManager.trackablesChanged.AddListener(OnImageChanged);
     }
 
     void OnDisable()
     {
         if (trackedImageManager != null)
-            trackedImageManager.trackedImagesChanged -= OnImageChanged;
+            trackedImageManager.trackablesChanged.RemoveListener(OnImageChanged);
     }
 
     void Update()
@@ -109,7 +109,7 @@ public class QRModelViewer : MonoBehaviour
         if (anyTracked) trackingTimer = 0f;
     }
 
-    void OnImageChanged(ARTrackedImagesChangedEventArgs eventArgs)
+    void OnImageChanged(ARTrackablesChangedEventArgs<ARTrackedImage> eventArgs)
     {
         if (!isScanning || isResettingSession) return;
 
@@ -119,8 +119,8 @@ public class QRModelViewer : MonoBehaviour
         foreach (var trackedImage in eventArgs.updated)
             OnTrackedImageUpdated(trackedImage);
 
-        foreach (var trackedImage in eventArgs.removed)
-            OnTrackedImageRemoved(trackedImage);
+        foreach (var kvp in eventArgs.removed)
+            OnTrackedImageRemoved(kvp.Value);
     }
 
     private void OnTrackedImageAdded(ARTrackedImage trackedImage)

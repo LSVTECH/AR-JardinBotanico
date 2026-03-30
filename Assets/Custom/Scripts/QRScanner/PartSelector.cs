@@ -1,4 +1,4 @@
-// PartSelector.cs
+﻿// PartSelector.cs
 using UnityEngine;
 using System.Collections;
 
@@ -19,7 +19,7 @@ public class PartSelector : MonoBehaviour
 
     void Start()
     {
-        viewer = FindObjectOfType<QRModelViewer>();
+        viewer = FindFirstObjectByType<QRModelViewer>();
         partRenderer = GetComponent<Renderer>();
 
         if (partRenderer != null)

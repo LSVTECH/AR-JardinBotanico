@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -19,7 +19,7 @@ public class VirtualJoystick : MonoBehaviour, IDragHandler, IPointerUpHandler, I
 
     void Start()
     {
-        // Guardar la posición inicial
+        // Guardar la posiciÃ³n inicial
         joystickInitialPosition = joystickBackground.anchoredPosition;
 
         // Obtener referencias necesarias
@@ -58,7 +58,7 @@ public class VirtualJoystick : MonoBehaviour, IDragHandler, IPointerUpHandler, I
 
         isActive = true;
 
-        // Posicionar el joystick donde se tocó
+        // Posicionar el joystick donde se tocÃ³
         if (!alwaysVisible)
         {
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -91,10 +91,9 @@ public class VirtualJoystick : MonoBehaviour, IDragHandler, IPointerUpHandler, I
         return inputAxis;
     }
 
-    // Método estático para obtener el input por ID
     public static Vector2 GetAxis(int joystickID)
     {
-        VirtualJoystick[] joysticks = FindObjectsOfType<VirtualJoystick>();
+        VirtualJoystick[] joysticks = FindObjectsByType<VirtualJoystick>(FindObjectsSortMode.None);
         foreach (VirtualJoystick joystick in joysticks)
         {
             if (joystick.joystickID == joystickID && joystick.isActive)

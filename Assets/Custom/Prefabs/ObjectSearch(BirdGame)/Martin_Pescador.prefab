@@ -18123,7 +18123,7 @@ GameObject:
   - component: {fileID: 3839804839464363680}
   - component: {fileID: 7588730964897083494}
   m_Layer: 0
-  m_Name: Martin Pescador
+  m_Name: Martin_Pescador
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

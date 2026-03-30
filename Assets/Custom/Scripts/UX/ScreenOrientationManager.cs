@@ -3,10 +3,10 @@ using UnityEngine.UI;
 
 public class ScreenOrientationManager : MonoBehaviour
 {
-    [Header("OrientaciÛn Inicial")]
+    [Header("Orientaci√≥n Inicial")]
     public bool startInLandscape = false;
 
-    [Header("ConfiguraciÛn de RotaciÛn Autom·tica")]
+    [Header("Configuraci√≥n de Rotaci√≥n Autom√°tica")]
     public bool allowAutoRotation = true;
     public bool allowPortrait = true;
     public bool allowPortraitUpsideDown = false;
@@ -25,16 +25,16 @@ public class ScreenOrientationManager : MonoBehaviour
         }
     }
 
-    // FunciÛn para forzar modo horizontal
+    // Funci√≥n para forzar modo horizontal
     public void SetLandscapeOrientation()
     {
-        // Desactivar rotaciÛn autom·tica
+        // Desactivar rotaci√≥n autom√°tica
         Screen.autorotateToPortrait = false;
         Screen.autorotateToPortraitUpsideDown = false;
         Screen.autorotateToLandscapeLeft = true;
         Screen.autorotateToLandscapeRight = true;
 
-        // Forzar orientaciÛn landscape
+        // Forzar orientaci√≥n landscape
         Screen.orientation = ScreenOrientation.LandscapeLeft;
 
         // Asegurar que la UI se ajuste
@@ -43,7 +43,7 @@ public class ScreenOrientationManager : MonoBehaviour
         Debug.Log("Modo horizontal activado");
     }
 
-    // FunciÛn para revertir a modo portrait o rotaciÛn autom·tica
+    // Funci√≥n para revertir a modo portrait o rotaci√≥n autom√°tica
     public void SetPortraitOrientation()
     {
         if (allowAutoRotation)
@@ -54,7 +54,7 @@ public class ScreenOrientationManager : MonoBehaviour
             Screen.autorotateToLandscapeLeft = allowLandscapeLeft;
             Screen.autorotateToLandscapeRight = allowLandscapeRight;
 
-            // Habilitar rotaciÛn autom·tica
+            // Habilitar rotaci√≥n autom√°tica
             Screen.orientation = ScreenOrientation.AutoRotation;
         }
         else
@@ -74,7 +74,7 @@ public class ScreenOrientationManager : MonoBehaviour
         Debug.Log("Modo portrait/auto activado");
     }
 
-    // FunciÛn para alternar entre orientaciones
+    // Funci√≥n para alternar entre orientaciones
     public void ToggleOrientation()
     {
         if (Screen.orientation == ScreenOrientation.Portrait ||
@@ -92,47 +92,31 @@ public class ScreenOrientationManager : MonoBehaviour
     // Ajustar UI para modo horizontal
     private void UpdateLayoutForLandscape()
     {
-        // AquÌ puedes agregar cÛdigo para ajustar tu UI
-        // Por ejemplo, reposicionar elementos o cambiar layouts
-
-        // Ejemplo: Buscar y ajustar canvas scalers
-        CanvasScaler[] scalers = FindObjectsOfType<CanvasScaler>();
-        foreach (CanvasScaler scaler in scalers)
-        {
-            // Ajustar para landscape
-            scaler.referenceResolution = new Vector2(1920, 1080);
-            scaler.matchWidthOrHeight = 0.5f; // Balance entre ancho y alto
-        }
+        // Aqu√≠ puedes agregar c√≥digo para ajustar tu UI si lo requieres en el futuro
+        // Por ejemplo, activar o desactivar ciertos elementos nativos seg√∫n la orientaci√≥n.
+        // Nota: Ya no inyectamos CanvasScaler aqu√≠, se maneja de forma nativa en el Editor (Layout Groups).
     }
 
     // Ajustar UI para modo vertical
     private void UpdateLayoutForPortrait()
     {
-        // Ajustar UI para portrait
-
-        CanvasScaler[] scalers = FindObjectsOfType<CanvasScaler>();
-        foreach (CanvasScaler scaler in scalers)
-        {
-            // Ajustar para portrait
-            scaler.referenceResolution = new Vector2(1080, 1920);
-            scaler.matchWidthOrHeight = 0.5f;
-        }
+        // Ajustes manuales para UI vertical si son necesarios en el futuro.
     }
 
-    // Detectar cambios de orientaciÛn autom·ticos
+    // Detectar cambios de orientaci√≥n autom√°ticos
     void Update()
     {
-        // Opcional: Detectar cambios de orientaciÛn y ajustar UI en tiempo real
+        // Opcional: Detectar cambios de orientaci√≥n y ajustar UI en tiempo real
         if (Screen.orientation == ScreenOrientation.LandscapeLeft ||
             Screen.orientation == ScreenOrientation.LandscapeRight)
         {
-            // El dispositivo est· en landscape
+            // El dispositivo est√° en landscape
             UpdateLayoutForLandscape();
         }
         else if (Screen.orientation == ScreenOrientation.Portrait ||
                  Screen.orientation == ScreenOrientation.PortraitUpsideDown)
         {
-            // El dispositivo est· en portrait
+            // El dispositivo est√° en portrait
             UpdateLayoutForPortrait();
         }
     }

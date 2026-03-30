@@ -51,15 +51,8 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (GameManager.Instance != null && GameManager.Instance.currentGameMode == GameManager.GameMode.PlatformGame)
-        {
-            HandleMovement();
-            ApplyGravity();
-        }
-        else
-        {
-            Debug.Log("Not in platform game mode");
-        }
+        HandleMovement();
+        ApplyGravity();
     }
 
     private void HandleMovement()
@@ -135,8 +128,7 @@ public class PlayerController : MonoBehaviour
     // Detectar colisión con bananas
     void OnTriggerEnter(Collider other)
     {
-        if (!isActive || GameManager.Instance == null ||
-            GameManager.Instance.currentGameMode != GameManager.GameMode.PlatformGame)
+        if (!isActive)
         {
             return;
         }
@@ -151,10 +143,7 @@ public class PlayerController : MonoBehaviour
     private void CollectBanana(GameObject banana)
     {
         // Notificar al GameManager
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.CollectBanana();
-        }
+        EventManager.OnBananaCollected?.Invoke(1);
 
         // Destruir la banana
         Destroy(banana);
